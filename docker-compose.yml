@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  showroom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: showroom
+    hostname: showroom
+    volumes:
+      - ./caddy:/app/caddy:Z
+      - ./layout-engine:/app/layout-engine:Z
+      - ./layouts:/app/layouts:Z
+      - ./entrypoint.sh:/app/entrypoint.sh:Z
+    ports:
+      - "8000:8000"
+    # Set environment variables that might affect output
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TERMINAL_ENABLE=true
+      - TERMINAL_SSH_HOST=host
+      - TERMINAL_SSH_PORT=2222
+      # - TERMINAL_SSH_METHOD=password
+      - TERMINAL_SSH_USER=lab-user
+      # - TERMINAL_SSH_PASS=password
+      - TERMINAL_SSH_METHOD=publickey
+      - TERMINAL_SSH_PRIVATE_KEY_FILE=/opt/id
+      # - TERMINAL_COMMAND=top
+      - LAYOUT_CONFIG_NAME=content-2-terminals
+      - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-2-terminals.yaml
+    volumes:
+      - .config/ssh/id:/opt/id:Z
+
+  host:
+    image: docker.io/linuxserver/openssh-server:latest
+    container_name: host
+    hostname: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - PASSWORD_ACCESS=true
+      - USER_NAME=lab-user
+      - USER_PASSWORD=password
+      - PUBLIC_KEY_FILE=/opt/id.pub
+      - LOG_STDOUT=true
+    volumes:
+      - .config/ssh/id.pub:/opt/id.pub:Z
+    restart: unless-stopped

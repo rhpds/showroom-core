@@ -1,0 +1,21 @@
+# 2 column, tabs left, stacked first and second tab
+layout:
+  columns:
+    left:
+      tabs:
+      - name: Tab 1
+        stack:
+          top:
+            url: https://picsum.photos/1200/1200
+          bottom:
+            url: https://www.example.com
+      - name: Tab 2
+        stack:
+          top:
+            url: https://www.example.com
+          bottom:
+            url: https://picsum.photos/1200/1200
+      - name: Tab 3
+        url: https://www.wikipedia.org
+    right:
+      url: https://www.lipsum.com

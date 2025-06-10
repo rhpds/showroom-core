@@ -1,0 +1,6 @@
+# includes/ttyd.caddy
+# Configuration for the /ttyd endpoint
+
+handle_path /ttyd/* {
+    reverse_proxy localhost:7681
+}

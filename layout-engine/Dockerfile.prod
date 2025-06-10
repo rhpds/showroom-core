@@ -1,0 +1,18 @@
+FROM docker.io/library/python:3.13-slim
+
+# Working directory
+WORKDIR /app
+
+# Copy requirements file and install dependencies
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir waitress
+
+# Copy the rest of the project files
+COPY . .
+
+# Expose the server port
+EXPOSE 5000
+
+# Command to start the server
+CMD ["waitress-serve", "--host=0.0.0.0", "--port=5000", "app:app"]

@@ -1,0 +1,10 @@
+# includes/content.caddy
+# Configuration for the static file server
+
+handle_path /content/* {
+    # Set this path to your site's directory.
+    root * /app/caddy/static
+
+    # Enable the static file server.
+    file_server
+}

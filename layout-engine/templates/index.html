@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Showroom</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      height:100%;
+    }
+
+    body {
+      margin: 0;
+      height:100%;
+    }
+
+    .content {
+      height: 100%;
+      padding: 0px;
+      display: flex;
+      justify-items: center;
+      align-items: center;
+      border: none;
+      margin-top: 0px;
+    }
+
+    .content iframe {
+      width: 100%;
+      border: none;
+    }
+
+    .split {
+      width:100%;
+      height:100%;
+    }
+
+    .left {
+      height: 100%
+    }
+
+    .right {
+      height: 100%
+    }
+
+    .gutter {
+      /* cursor: e-resize; */
+      /* background: grey; */
+      background-color: #eee;
+      background-repeat: no-repeat;
+      background-position: 50%;
+    }
+
+    .gutter.gutter-horizontal {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+      cursor: col-resize;
+    }
+    .gutter.gutter-vertical {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+      cursor: row-resize;
+    }
+
+    .tab {
+      overflow: hidden;
+      border-bottom: 1px solid #ccc;
+      background-color: #f1f1f1;
+      height: 50px;
+    }
+
+    /* Style the buttons that are used to open the tab content */
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+      background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+      background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+      display: none;
+      border: none;
+      /* 100% - height of the tab above */
+      height: calc(100% - 50px);
+    }
+
+    .tabcontent iframe {
+      border: none;
+      width: 100%;
+    }
+  </style>
+
+  <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
+
+  {% from 'common.html' import tabs, stack %}
+</head>
+
+<body>
+  <div class="content">
+    {%- if "url" in layout %}
+      <iframe id="content" src="{{ layout.url }}" class="content"></iframe>
+    {%- elif "columns" in layout %}
+    <div class="split left">
+      {%- if "url" in layout.columns.left %}
+      <iframe id="left-content" src="{{ layout.columns.left.url }}" class="content"></iframe>
+      {%- elif "stack" in layout.columns.left %}
+      {{ stack(layout.columns.left.stack) }}
+      {%- elif "tabs" in layout.columns.left %}
+      {{ tabs(layout.columns.left.tabs) }}
+      {%- endif %}
+    </div>
+    <div class="split right">
+      {%- if "url" in layout.columns.right %}
+      <iframe id="right-content" src="{{ layout.columns.right.url }}" class="content"></iframe>
+      {%- elif "stack" in layout.columns.right %}
+      {{ stack(layout.columns.right.stack) }}
+      {%- elif "tabs" in layout.columns.right %}
+      {{ tabs(layout.columns.right.tabs) }}
+      {%- endif %}
+    </div>
+    {%- endif %}
+  </div>
+  <script>
+    // Click first tab on both left and right columns if they exist
+    var defaultTabs = document.getElementsByClassName("defaultOpen");
+    for (var i=0;i<defaultTabs.length; i++) {
+        defaultTabs[i].click();
+    }
+
+    function openTab(evt, tabName, pageColumn) {
+      // Declare all variables
+      var i, tabcontent, tablinks;
+      // Get all elements with class="tabcontent" and hide them
+      tabcontent = document.querySelectorAll("."+pageColumn+".tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      // Get all elements with class="tablinks" and remove the class "active"
+      tablinks = document.querySelectorAll("."+pageColumn+".tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      // Show the current tab, and add an "active" class to the button that opened the tab
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+  </script>
+  {%- if "columns" in layout %}
+  <script>
+    Split(['.left', '.right'], {
+      sizes: [{{ layout.columns.left.width or 45 }}, {{ layout.columns.right.width or 55 }}],
+    });
+  </script>
+  {%- endif %}
+</body>
+
+</html>

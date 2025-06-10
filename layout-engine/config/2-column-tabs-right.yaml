@@ -1,0 +1,39 @@
+# 2 column, tabs right, stacked second tab and third tab
+layout:
+  columns:
+    left:
+      url: https://www.lipsum.com
+      width: 40
+    right:
+      width: 60
+      tabs:
+      - name: Tab 1
+        url: https://www.wikipedia.org/
+      - name: Tab 1a
+        url: https://www.lipsum.com
+      - name: Tab 2
+        stack:
+          top:
+            url: https://www.example.com
+            height: 70
+          bottom:
+            url: https://picsum.photos/1200/1200
+            height: 30
+      - name: Flipped Tab 2
+        stack:
+          top:
+            url: https://picsum.photos/1200/1200
+            height: 30
+          bottom:
+            url: https://www.example.com
+            height: 70
+      - name: New Zealand
+        url: https://en.wikipedia.org/wiki/New_Zealand
+      - name: Countries
+        stack:
+          top:
+            url: https://en.wikipedia.org/wiki/Australia
+            height: 50
+          bottom:
+            url: https://en.wikipedia.org/wiki/India
+            height: 50

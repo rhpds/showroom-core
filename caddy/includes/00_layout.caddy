@@ -1,0 +1,5 @@
+# includes/layout.caddy
+# Configuration for the root endpoint
+
+# Default handler for root path
+reverse_proxy localhost:5000

@@ -1,0 +1,9 @@
+# 2 column
+layout:
+  columns:
+    left:
+      url: /content/
+      width: 50
+    right:
+      url: /ttyd/
+      width: 50

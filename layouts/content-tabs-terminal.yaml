@@ -1,0 +1,11 @@
+# 2 column, tabs right, stacked second tab and third tab
+layout:
+  columns:
+    left:
+      url: /content/
+    right:
+      tabs:
+      - name: Terminals
+        url: /ttyd/
+      - name: New Zealand
+        url: https://en.wikipedia.org/wiki/New_Zealand

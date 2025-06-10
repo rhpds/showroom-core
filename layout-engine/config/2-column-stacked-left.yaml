@@ -1,0 +1,13 @@
+# 2 column, stacked left
+layout:
+  columns:
+    left:
+      stack:
+        top:
+          url: https://www.example.com
+          height: 30
+        bottom:
+          url: https://picsum.photos/1200/1200
+          height: 70
+    right:
+      url: https://www.lipsum.com

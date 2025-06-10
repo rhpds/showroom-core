@@ -1,0 +1,49 @@
+# 2 column, tabs left, stacked first and second tab
+layout:
+  columns:
+    left:
+      tabs:
+      - name: Tab 1
+        stack:
+          top:
+            url: https://picsum.photos/1200/1200
+            height: 50
+          bottom:
+            url: https://www.example.com
+            height: 50
+      - name: Tab 2
+        stack:
+          top:
+            url: https://www.example.com
+            height: 50
+          bottom:
+            url: https://picsum.photos/1200/1200
+            height: 50
+      - name: Tab 3
+        url: https://www.wikipedia.org
+    right:
+      tabs:
+      - name: Tab 1
+        stack:
+          top:
+            url: https://www.example.com
+            height: 50
+          bottom:
+            url: https://picsum.photos/1200/1200
+            height: 50
+      - name: Tab 2
+        stack:
+          top:
+            url: https://picsum.photos/1200/1200
+            height: 50
+          bottom:
+            url: https://www.example.com
+            height: 50
+      - name: Triple stack
+        stack:
+          top:
+            url: https://www.example.com
+          middle:
+            url: https://www.wikipedia.org
+          bottom:
+            url: https://picsum.photos/1200/1200

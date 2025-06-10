@@ -1,0 +1,58 @@
+{% macro tabs(tabs) -%}
+{#  Set a random number so we can use it to bind the split panels to.  
+    This allows us have stacked panels in multiple tabs in the left and right columns. #}
+{% set random = range(1000, 9999) | random %}
+<div class="tab">
+    {%- for tab in tabs %}
+    <button class="tablinks  _{{ random }} {% if loop.index == 1 %}defaultOpen{% endif %}" onclick="openTab(event, '{{ tab.name }}{{ random }}', '_{{ random }}')"
+        tabindex="{{ loop.index }}">{{ tab.name }}</button>
+    {%- endfor %}
+</div>
+{%- for tab in tabs %}
+<div id="{{ tab.name }}{{ random }}" class="tabcontent _{{ random }}">
+    {% if "url" in tab %}
+    <iframe src="{{ tab.url }}"></iframe>
+    {% elif "stack" in tab %}
+    {{ stack(tab.stack) }}
+    {% endif %}
+</div>
+{%- endfor %}
+{%- endmacro %}
+
+{% macro stack(stack, index=0) -%}
+{% set random = range(1000, 9999) | random %}
+
+{% set topSize = 50 %}
+{% set bottomSize = 50 %}
+{% if "middle" in stack %}
+    {% set topSize = 34 %}
+    {% set middleSize = 33 %}
+    {% set bottomSize = 33 %}
+{% endif %}
+
+<div class="split top{{ random }}{{index}}">
+        <iframe src="{{ stack.top.url }}"></iframe>
+    </div>
+    {% if "middle" in stack %}
+    <div class="split middle{{ random }}{{index}}">
+        <iframe src="{{ stack.middle.url }}"></iframe>
+    </div>
+    {% endif %}
+    <div class="split bottom{{ random }}{{index}}">
+        <iframe src="{{ stack.bottom.url }}"></iframe>
+    </div>
+    <script>
+        Split([
+            '.top{{ random }}{{index}}', 
+            {% if "middle" in stack %}'.middle{{ random }}{{index}}',{% endif %}
+            '.bottom{{ random }}{{index}}'
+        ], {
+            sizes: [
+                {{ stack.top.height or topSize }}, 
+                {% if "middle" in stack %}{{ stack.middle.height or middleSize }},{% endif %} 
+                {{ stack.bottom.height or bottomSize }}
+            ],
+            direction: 'vertical',
+        });
+    </script>
+{%- endmacro %}
