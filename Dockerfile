@@ -3,6 +3,7 @@ FROM registry.access.redhat.com/ubi10:10.0
 USER root
 
 ARG ANTORA_VERSION=3.1
+ARG CADDY_VERSION=2.10.0
 ARG TTYD_VERSION=1.7.7
 ARG SSHPASS_VERSION=1.09-9
 
@@ -11,7 +12,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf -y install 'dnf-command(copr)' && \
     dnf -y copr enable @caddy/caddy && \
     dnf -y --quiet install \
-    wget python3 python3-pip caddy git nodejs procps \
+    wget python3 python3-pip caddy-${CADDY_VERSION} git nodejs procps \
     openssh-clients && \
     dnf install -y https://mirror.stream.centos.org/10-stream/AppStream/x86_64/os/Packages/sshpass-${SSHPASS_VERSION}.el10.x86_64.rpm && \
     dnf -y clean all --enablerepo='*' && \
@@ -28,6 +29,7 @@ RUN npm i -g @antora/cli@${ANTORA_VERSION} @antora/site-generator@${ANTORA_VERSI
 
 ###################################################
 # ttyd
+# TODO check sha256 sum
 RUN wget -q https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/ttyd.x86_64 \
     -O /usr/bin/ttyd && chmod +x /usr/bin/ttyd
 ###################################################
