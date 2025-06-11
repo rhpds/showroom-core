@@ -34,6 +34,7 @@ PYTHON_APP_DIR="/app/layout-engine"
 CADDY_CONFIG="/app/caddy/Caddyfile"
 STATIC_SITE_DIR="/app/caddy/static"
 REPOSITORY_DIR="/app/repository"
+PID_DIR="/tmp/pids"
 
 
 # Environment variables
@@ -61,34 +62,48 @@ TERMINAL_SSH_METHOD="${TERMINAL_SSH_METHOD:-}"
 TERMINAL_SSH_PRIVATE_KEY_FILE="${TERMINAL_SSH_PRIVATE_KEY_FILE:-}"
 TERMINAL_COMMAND="${TERMINAL_COMMAND:-}"
 
-# Process tracking
-PIDS=()
-SERVICES=()
+# Process tracking - Replaced with PID files
+# PIDS=()
+# SERVICES=()
 
 # Cleanup function
 cleanup() {
     log "Shutting down services..."
     
-    # Kill all child processes
-    for i in "${!PIDS[@]}"; do
-        if [ -n "${PIDS[$i]}" ] && kill -0 "${PIDS[$i]}" 2>/dev/null; then
-            log "Stopping ${SERVICES[$i]} (PID: ${PIDS[$i]})"
-            kill -TERM "${PIDS[$i]}" 2>/dev/null || true
+    if [ ! -d "$PID_DIR" ]; then
+        warn "PID directory not found, cannot perform cleanup."
+        exit 0
+    fi
+
+    # Gracefully terminate all processes found in the PID directory
+    for pid_file in $PID_DIR/*.pid; do
+        if [ -f "$pid_file" ]; then
+            local pid=$(cat "$pid_file")
+            local service_name=$(basename "$pid_file" .pid)
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                log "Stopping $service_name (PID: $pid)..."
+                # Kill the entire process group by prefixing the PID with a '-'
+                kill -TERM -- "-$pid" 2>/dev/null || true
+            fi
         fi
     done
-    
-    # Wait for graceful shutdown
+
+    # Wait for a few seconds for graceful shutdown
     sleep 5
-    
-    # Force kill if still running
-    for i in "${!PIDS[@]}"; do
-        if [ -n "${PIDS[$i]}" ] && kill -0 "${PIDS[$i]}" 2>/dev/null; then
-            warn "Force killing ${SERVICES[$i]} (PID: ${PIDS[$i]})"
-            kill -KILL "${PIDS[$i]}" 2>/dev/null || true
+
+    # Force kill any processes that are still running
+    for pid_file in $PID_DIR/*.pid; do
+        if [ -f "$pid_file" ]; then
+            local pid=$(cat "$pid_file")
+            local service_name=$(basename "$pid_file" .pid)
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                warn "Force killing $service_name (PID: $pid)..."
+                kill -KILL -- "-$pid" 2>/dev/null || true
+            fi
         fi
     done
-    
-    success "All services stopped"
+
+    success "All services stopped."
     exit 0
 }
 
@@ -232,26 +247,6 @@ build_antora() {
     return 0
 }
 
-check_service() {
-    local name=$1
-    local pid=$2
-    local port=$3
-    
-    if ! kill -0 "$pid" 2>/dev/null; then
-        error "$name has died (PID: $pid)"
-        return 1
-    fi
-    
-    if [ -n "$port" ]; then
-        if ! curl -f -s "http://localhost:$port" > /dev/null 2>&1; then
-            warn "$name is not responding on port $port"
-            return 1
-        fi
-    fi
-    
-    return 0
-}
-
 # Start Python web app
 start_python_app() {
     log "Starting Python web app..."
@@ -273,12 +268,10 @@ start_python_app() {
 
     # Force unbuffered output and add diagnostic
     log "Starting Flask with prefix logging..."
-    # flask run --debug --host=0.0.0.0 --extra-files=templates/index.html:templates/common.html:config/2-column.yaml 2>&1 | sed -u 's/^/[layout]\t/' &
-    waitress-serve --host=0.0.0.0 --port=5000 app:app 2>&1  | sed -u 's/^/[layout]\t/' &
+    (exec waitress-serve --host=0.0.0.0 --port=5000 app:app 2>&1 | sed -u 's/^/[layout]\t/' ) &
     
     local pid=$!
-    PIDS+=($pid)
-    SERVICES+=("Layout")
+    echo $pid > "$PID_DIR/python.pid"
     
     log "Python app started with PID: $pid"
     return 0
@@ -326,11 +319,10 @@ start_ttyd() {
     
     # Start TTYD with the determined command
     log "Starting TTYD with command: $command_to_run"
-    ttyd --base-path=/ -W -p 7681 -O -t fontSize=14 -t "theme=${TTYD_THEME}" $command_to_run 2>&1 | sed -u 's/^/[ttyd]\t\t/' &
+    (exec ttyd --base-path=/ -W -p 7681 -O -t fontSize=14 -t "theme=${TTYD_THEME}" $command_to_run 2>&1 | sed -u 's/^/[ttyd]\t\t/' ) &
     
     local pid=$!
-    PIDS+=($pid)
-    SERVICES+=("TTYD")
+    echo $pid > "$PID_DIR/ttyd.pid"
     
     log "TTYD started with PID: $pid"
     return 0
@@ -342,34 +334,15 @@ start_caddy() {
     
     # Start Caddy with unbuffered sed
     log "Starting Caddy with prefix logging..."
-    caddy run --config "$CADDY_CONFIG" --adapter caddyfile 2>&1 | sed -u 's/^/[caddy]\t\t/' &
+    (exec caddy run --config "$CADDY_CONFIG" --adapter caddyfile 2>&1 | sed -u 's/^/[caddy]\t\t/' ) &
     
     local pid=$!
-    PIDS+=($pid)
-    SERVICES+=("Caddy")
+    echo $pid > "$PID_DIR/caddy.pid"
     
     log "Caddy started with PID: $pid"
     return 0
 }
 
-# Monitor services
-monitor_services() {
-    while true; do
-        sleep 30
-        
-        for i in "${!PIDS[@]}"; do
-            if [ -n "${PIDS[$i]}" ]; then
-                if ! kill -0 "${PIDS[$i]}" 2>/dev/null; then
-                    error "${SERVICES[$i]} has died (PID: ${PIDS[$i]})"
-                    log "Container will exit due to service failure"
-                    cleanup
-                fi
-            fi
-        done
-    done
-}
-
-# Wait for services to be ready
 wait_for_services() {
     log "Waiting for services to be ready..."
     
@@ -412,6 +385,9 @@ wait_for_services() {
 main() {
     log "Starting multi-service container..."
     log "Container running as user: $(id)"
+
+    # Create a directory for PID files
+    mkdir -p "$PID_DIR"
     
     # Init container, git clone repo and build antora content
     
@@ -425,7 +401,7 @@ main() {
     start_python_app || { error "Failed to start Python app"; exit 1; }
     sleep 2
     
-    start_ttyd || { error "Failed to start TTYD"; exit 1; }
+    start_ttyd # Don't exit if TTYD fails to start, it's optional
     sleep 2
     
     start_caddy || { error "Failed to start Caddy"; exit 1; }
@@ -435,23 +411,20 @@ main() {
     wait_for_services
     
     success "All services started successfully!"
-    log "Service PIDs: ${PIDS[*]}"
     log "Container is ready to serve traffic on port 8000"
     log "Routes:"
     log "  / -> Showroom layout"
     log "  /ttyd/* -> Terminal"
     log "  /content/* -> Static content"
     
-    # Start monitorinwg in background
-    monitor_services &
-    local monitor_pid=$!
-    
-    # Wait for any service to exit
-    wait
+    # Wait for any child process to exit. The livenessProbe is the primary failure detector.
+    # The 'trap' will handle cleanup on SIGTERM/SIGINT.
+    # If a process dies unexpectedly, 'wait' will exit, and the script will end,
+    # causing the container to stop.
+    wait -n
     
     # If we reach here, a service has exited
-    log "A service has exited, shutting down container"
-    kill $monitor_pid 2>/dev/null || true
+    error "A service has exited unexpectedly, shutting down."
     cleanup
 }
 

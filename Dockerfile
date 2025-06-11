@@ -11,7 +11,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf -y install 'dnf-command(copr)' && \
     dnf -y copr enable @caddy/caddy && \
     dnf -y --quiet install \
-    wget python3 python3-pip caddy git nodejs \
+    wget python3 python3-pip caddy git nodejs procps \
     openssh-clients && \
     dnf install -y https://mirror.stream.centos.org/10-stream/AppStream/x86_64/os/Packages/sshpass-${SSHPASS_VERSION}.el10.x86_64.rpm && \
     dnf -y clean all --enablerepo='*' && \
@@ -52,8 +52,12 @@ RUN mkdir -p /app/layouts
 COPY ./layouts /app/layouts
 
 COPY entrypoint.sh /app/entrypoint.sh
+COPY health_check.sh /app/health_check.sh
+COPY readiness_check.sh /app/readiness_check.sh
 
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && \
+    chmod +x /app/health_check.sh && \
+    chmod +x /app/readiness_check.sh
 
 WORKDIR /app
 ENTRYPOINT ["/app/entrypoint.sh"]

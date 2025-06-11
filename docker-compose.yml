@@ -30,6 +30,7 @@ services:
       - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-2-terminals.yaml
     volumes:
       - .config/ssh/id:/opt/id:Z
+    restart: unless-stopped
 
   host:
     image: docker.io/linuxserver/openssh-server:latest
