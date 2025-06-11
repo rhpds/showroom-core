@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi10
+FROM registry.access.redhat.com/ubi10:10.0
 
 USER root
 
