@@ -66,5 +66,8 @@ RUN chmod +x /app/entrypoint.sh && \
     chmod +x /app/health_check.sh && \
     chmod +x /app/readiness_check.sh
 
+# Setting the 'HOME' env var, caddy will create files in .config and .local
+# and ttyd in .ssh. OCP will set HOME to / by default otherwise.
+ENV HOME=/app
 WORKDIR /app
 ENTRYPOINT ["/usr/local/bin/tini", "-v", "-g", "--", "/app/entrypoint.sh"]
