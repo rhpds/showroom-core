@@ -2,5 +2,5 @@
 # Configuration for the /ttyd endpoint
 
 handle_path /ttyd/* {
-    reverse_proxy localhost:7681
+	reverse_proxy localhost:7681
 }

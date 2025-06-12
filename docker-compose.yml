@@ -7,13 +7,10 @@ services:
       dockerfile: Dockerfile
     container_name: showroom
     hostname: showroom
-    volumes:
-      - ./caddy:/app/caddy:Z
-      - ./layout-engine:/app/layout-engine:Z
-      - ./layouts:/app/layouts:Z
-      - ./entrypoint.sh:/app/entrypoint.sh:Z
     ports:
       - "8000:8000"
+      - "7681:7681"
+      - "5000:5000"
     # Set environment variables that might affect output
     environment:
       - PYTHONUNBUFFERED=1
@@ -29,7 +26,11 @@ services:
       - LAYOUT_CONFIG_NAME=content-2-terminals
       - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-2-terminals.yaml
     volumes:
-      - .config/ssh/id:/opt/id:Z
+      - ./caddy:/app/caddy:z
+      - ./layout-engine:/app/layout-engine:z
+      - ./layouts:/app/layouts:z
+      - ./entrypoint.sh:/app/entrypoint.sh:z
+      - .config/ssh/id:/opt/id:z
 
   host:
     image: docker.io/linuxserver/openssh-server:latest
@@ -45,5 +46,5 @@ services:
       - PUBLIC_KEY_FILE=/opt/id.pub
       - LOG_STDOUT=true
     volumes:
-      - .config/ssh/id.pub:/opt/id.pub:Z
+      - .config/ssh/id.pub:/opt/id.pub:z
     restart: unless-stopped
