@@ -62,10 +62,6 @@ TERMINAL_SSH_METHOD="${TERMINAL_SSH_METHOD:-}"
 TERMINAL_SSH_PRIVATE_KEY_FILE="${TERMINAL_SSH_PRIVATE_KEY_FILE:-}"
 TERMINAL_COMMAND="${TERMINAL_COMMAND:-}"
 
-# Process tracking - Replaced with PID files
-# PIDS=()
-# SERVICES=()
-
 # Cleanup function
 cleanup() {
     log "Shutting down services..."
