@@ -6,6 +6,7 @@ ARG ANTORA_VERSION=3.1
 ARG CADDY_VERSION=2.10.0
 ARG TTYD_VERSION=1.7.7
 ARG SSHPASS_VERSION=1.09-9
+ARG TINI_VERSION=v0.19.0
 
 # Install necessary tools
 RUN dnf -y update && dnf -y upgrade && \
@@ -17,6 +18,10 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf install -y https://mirror.stream.centos.org/10-stream/AppStream/x86_64/os/Packages/sshpass-${SSHPASS_VERSION}.el10.x86_64.rpm && \
     dnf -y clean all --enablerepo='*' && \
     rm -rf /var/cache/yum /root/.cache
+
+# Install tini
+RUN wget -O /usr/local/bin/tini "https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-amd64" && \
+    chmod +x /usr/local/bin/tini
 
 ###################################################
 # Git
@@ -62,4 +67,4 @@ RUN chmod +x /app/entrypoint.sh && \
     chmod +x /app/readiness_check.sh
 
 WORKDIR /app
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/tini", "-v", "-g", "--", "/app/entrypoint.sh"]
