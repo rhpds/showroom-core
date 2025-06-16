@@ -6,6 +6,8 @@ layout:
     right:
       stack:
         top:
-          url: /ttyd/
+          url: /ttyd1/
+        middle:
+          url: /ttyd1/
         bottom:
-          url: /ttyd/
+          url: /ttyd1/

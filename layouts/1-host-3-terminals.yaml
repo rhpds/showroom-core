@@ -1,0 +1,15 @@
+# 2 column, stacked right
+layout:
+  columns:
+    left:
+      url: /content/
+    right:
+      tabs:
+      - name: Terminals
+        stack:
+          top:
+            url: /ttyd1/
+          middle:
+            url: /ttyd1/
+          bottom:
+            url: /ttyd1/

@@ -1,0 +1,9 @@
+# 2 column, stacked right
+layout:
+  columns:
+    left:
+      url: /content/
+    right:
+      tabs:
+      - name: Terminal
+        url: /ttyd1/

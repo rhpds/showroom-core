@@ -6,6 +6,9 @@ from flask import Flask, render_template, url_for, send_from_directory, request,
 
 app = Flask(__name__)
 app.config["url_path"] = os.getenv("URL_PATH", "/")
+app.config["host"] = os.getenv("LAYOUT_HOST", "0.0.0.0")
+app.config["port"] = os.getenv("LAYOUT_PORT", "5000")
+
 app.logger.info('Serving content on path: %s', app.config["url_path"])
 
 app.config["config_path"] = os.getenv("LAYOUT_CONFIG_PATH", "config/2-column.yaml")
@@ -40,4 +43,4 @@ def showroom():
     return render_template('index.html', layout=app.config["LAYOUT"], url_path=static_path)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host=app.config["host"], port=app.config["port"])

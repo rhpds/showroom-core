@@ -1,9 +1,7 @@
-# 2 column
+# 2 column, stacked right
 layout:
   columns:
     left:
       url: /content/
-      width: 50
     right:
-      url: /ttyd/
-      width: 50
+      url: /ttyd1/

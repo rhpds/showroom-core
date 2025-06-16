@@ -1,0 +1,11 @@
+# 2 column, stacked right
+layout:
+  columns:
+    left:
+      url: /content/
+    right:
+      stack:
+        top:
+          url: /ttyd1/
+        bottom:
+          url: /ttyd2/

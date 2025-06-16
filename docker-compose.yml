@@ -9,22 +9,45 @@ services:
     hostname: showroom
     ports:
       - "8000:8000"
-      - "7681:7681"
+      - "7681:7681"  # Terminal 1
+      - "7682:7682"  # Terminal 2
+      - "7683:7683"  # Terminal 3
       - "5000:5000"
     # Set environment variables that might affect output
     environment:
       - PYTHONUNBUFFERED=1
-      - TERMINAL_ENABLE=true
-      - TERMINAL_SSH_HOST=host
-      - TERMINAL_SSH_PORT=2222
-      # - TERMINAL_SSH_METHOD=password
-      - TERMINAL_SSH_USER=lab-user
-      # - TERMINAL_SSH_PASS=password
-      - TERMINAL_SSH_METHOD=publickey
-      - TERMINAL_SSH_PRIVATE_KEY_FILE=/opt/id
-      # - TERMINAL_COMMAND=top
-      - LAYOUT_CONFIG_NAME=content-2-terminals
-      - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-2-terminals.yaml
+
+      # Terminal 1 configuration
+      - TERMINAL_1_ENABLE=true
+      - TERMINAL_1_SSH_HOST=host1
+      - TERMINAL_1_SSH_PORT=2222
+      - TERMINAL_1_SSH_USER=lab-user
+      - TERMINAL_1_SSH_METHOD=publickey
+      # - TERMINAL_1_SSH_PASS=password
+      - TERMINAL_1_PORT=7681
+      - TERMINAL_1_SSH_PRIVATE_KEY_FILE=/opt/id
+
+      # Terminal 2 configuration
+      - TERMINAL_2_ENABLE=true
+      - TERMINAL_2_SSH_HOST=host2
+      - TERMINAL_2_SSH_PORT=2222
+      - TERMINAL_2_SSH_USER=lab-user
+      - TERMINAL_2_SSH_METHOD=password
+      - TERMINAL_2_SSH_PASS=password
+      - TERMINAL_2_PORT=7682
+
+      # Terminal 3 configuration
+      - TERMINAL_3_ENABLE=true
+      - TERMINAL_3_SSH_HOST=host3
+      - TERMINAL_3_SSH_PORT=2222
+      - TERMINAL_3_SSH_USER=lab-user
+      - TERMINAL_3_SSH_METHOD=password
+      - TERMINAL_3_SSH_PASS=password
+      - TERMINAL_3_PORT=7683
+
+      # Layout configuration
+      - LAYOUT_CONFIG_NAME=1-hosts-3-terminals
+      # - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-3-terminals.yaml
     volumes:
       - ./caddy:/app/caddy:z
       - ./layout-engine:/app/layout-engine:z
@@ -32,10 +55,44 @@ services:
       - ./entrypoint.sh:/app/entrypoint.sh:z
       - .config/ssh/id:/opt/id:z
 
-  host:
+  host1:
     image: docker.io/linuxserver/openssh-server:latest
-    container_name: host
-    hostname: host
+    container_name: host1
+    hostname: host1
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - PASSWORD_ACCESS=true
+      - USER_NAME=lab-user
+      - USER_PASSWORD=password
+      - PUBLIC_KEY_FILE=/opt/id.pub
+      - LOG_STDOUT=true
+    volumes:
+      - .config/ssh/id.pub:/opt/id.pub:z
+    restart: unless-stopped
+
+  host2:
+    image: docker.io/linuxserver/openssh-server:latest
+    container_name: host2
+    hostname: host2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Australia/Sydney
+      - PASSWORD_ACCESS=true
+      - USER_NAME=lab-user
+      - USER_PASSWORD=password
+      - PUBLIC_KEY_FILE=/opt/id.pub
+      - LOG_STDOUT=true
+    volumes:
+      - .config/ssh/id.pub:/opt/id.pub:z
+    restart: unless-stopped
+
+  host3:
+    image: docker.io/linuxserver/openssh-server:latest
+    container_name: host3
+    hostname: host3
     environment:
       - PUID=1000
       - PGID=1000
