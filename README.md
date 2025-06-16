@@ -92,19 +92,6 @@ The application will be available at:
 | `LAYOUT_CONFIG_DIR` | `/app/layouts` | Directory containing layout configurations |
 | `LAYOUT_CONFIG_PATH` | - | Direct path to layout config (overrides name/dir) |
 
-#### Terminal Configuration (Single Terminal)
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TERMINAL_ENABLE` | `false` | Enable/disable terminal functionality |
-| `TERMINAL_SSH_HOST` | - | SSH host to connect to |
-| `TERMINAL_SSH_PORT` | `22` | SSH port |
-| `TERMINAL_SSH_USER` | `lab-user` | SSH username |
-| `TERMINAL_SSH_METHOD` | - | Authentication method: `password` or `publickey` |
-| `TERMINAL_SSH_PASS` | - | SSH password (for password auth) |
-| `TERMINAL_SSH_PRIVATE_KEY_FILE` | - | Path to private key file (for publickey auth) |
-| `TERMINAL_COMMAND` | - | Command to run in terminal session |
-
 ## Multi-Terminal Support
 
 The showroom-core container supports running multiple TTYD terminal instances, allowing you to connect to different hosts or run different commands simultaneously. Each terminal runs on its own port and can be configured independently.
