@@ -1,0 +1,15 @@
+# Main Caddyfile
+#
+# This file imports configurations from other files.
+
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+:8000 {
+	# Import the configuration from includes directory
+	import includes/*.caddy
+	import includes.d/*.caddy
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+# https://caddyserver.com/docs/caddyfile/directives/import
