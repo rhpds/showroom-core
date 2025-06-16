@@ -1,0 +1,10 @@
+---
+deployment:
+  target: podman
+  hostname: showroom-example.com:8443
+
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    data:
+      lab_name: All new dynamic showroom layouts!

@@ -1,0 +1,16 @@
+---
+deployment:
+  target: openshift
+  hostname: showroom.apps.cluster-{{GUID}}.{{GUID}}.{{SANDBOX}}.opentlc.com
+
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    data:
+      lab_name: All new dynamic showroom layouts!
+
+  terminal:
+    host: bastion.{{GUID}}.{{SANDBOX}}.opentlc.com
+    user: lab-user
+    pass: {{PASSWORD}}
+    sshMethod: password

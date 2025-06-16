@@ -1,0 +1,24 @@
+---
+deployment:
+  target: podman
+  hostname: showroom-example.com:8443
+
+#############################################################
+# Indiviual service configuration
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    data:
+      lab_name: All new dynamic showroom layouts!!!!
+
+  terminal:
+    host: localhost
+    port: 2222
+    user: lab-user
+    sshMethod: publickey
+
+  # openssh is enabled here for the example, giving wetty an ssh server to connect to
+  openssh:
+    enabled: true
+    user: lab-user
+    sshKeyDir: files/ssh
