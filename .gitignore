@@ -1,2 +1,4 @@
 .vscode
 caddy/includes.d
+caddy/includes/entrypoint
+caddy/static

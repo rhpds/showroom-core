@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  showroom:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: showroom
+    hostname: showroom
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LAYOUT_CONFIG_NAME=content
+    volumes:
+      - ./caddy:/app/caddy:z
+      - ./layout-engine:/app/layout-engine:z
+      - ./layouts:/app/layouts:z
+      - ./entrypoint.sh:/app/entrypoint.sh:z
+      - .config/ssh/id:/opt/id:z
