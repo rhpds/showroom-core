@@ -65,10 +65,12 @@ cleanup() {
     fi
 
     # Gracefully terminate all processes found in the PID directory
-    for pid_file in $PID_DIR/*.pid; do
+    for pid_file in "$PID_DIR"/*.pid; do
         if [ -f "$pid_file" ]; then
-            local pid=$(cat "$pid_file")
-            local service_name=$(basename "$pid_file" .pid)
+            local pid
+            local service_name
+            pid=$(cat "$pid_file")
+            service_name=$(basename "$pid_file" .pid)
             if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
                 log "Stopping $service_name (PID: $pid)..."
                 # Kill the entire process group by prefixing the PID with a '-'
@@ -81,10 +83,12 @@ cleanup() {
     sleep 5
 
     # Force kill any processes that are still running
-    for pid_file in $PID_DIR/*.pid; do
+    for pid_file in "$PID_DIR"/*.pid; do
         if [ -f "$pid_file" ]; then
-            local pid=$(cat "$pid_file")
-            local service_name=$(basename "$pid_file" .pid)
+            local pid
+            local service_name
+            pid=$(cat "$pid_file")
+            service_name=$(basename "$pid_file" .pid)
             if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
                 warn "Force killing $service_name (PID: $pid)..."
                 kill -KILL -- "-$pid" 2>/dev/null || true
@@ -112,18 +116,25 @@ get_terminal_config() {
 # Validate SSH configuration for a specific terminal
 validate_terminal_ssh_config() {
     local terminal_num=$1
-    local enabled=$(get_terminal_config $terminal_num "ENABLE")
+    local enabled
+    enabled=$(get_terminal_config "$terminal_num" "ENABLE")
 
     if [ "$enabled" != "true" ]; then
         return 0  # Skip validation if terminal is not enabled
     fi
 
-    local command=$(get_terminal_config $terminal_num "COMMAND")
-    local ssh_host=$(get_terminal_config $terminal_num "SSH_HOST")
-    local ssh_method=$(get_terminal_config $terminal_num "SSH_METHOD")
-    local ssh_user=$(get_terminal_config $terminal_num "SSH_USER")
-    local ssh_pass=$(get_terminal_config $terminal_num "SSH_PASS")
-    local ssh_key_file=$(get_terminal_config $terminal_num "SSH_PRIVATE_KEY_FILE")
+    local command
+    local ssh_host
+    local ssh_method
+    local ssh_user
+    local ssh_pass
+    local ssh_key_file
+    command=$(get_terminal_config "$terminal_num" "COMMAND")
+    ssh_host=$(get_terminal_config "$terminal_num" "SSH_HOST")
+    ssh_method=$(get_terminal_config "$terminal_num" "SSH_METHOD")
+    ssh_user=$(get_terminal_config "$terminal_num" "SSH_USER")
+    ssh_pass=$(get_terminal_config "$terminal_num" "SSH_PASS")
+    ssh_key_file=$(get_terminal_config "$terminal_num" "SSH_PRIVATE_KEY_FILE")
 
     # If COMMAND is set, skip SSH validation
     if [ -n "$command" ]; then
@@ -201,8 +212,10 @@ clone_repository() {
 
     # Display repository information
     cd "$REPOSITORY_DIR"
-    local current_commit=$(git rev-parse HEAD)
-    local current_branch=$(git branch --show-current)
+    local current_commit
+    local current_branch
+    current_commit=$(git rev-parse HEAD)
+    current_branch=$(git branch --show-current)
     log "Repository info:"
     log "  Branch: $current_branch"
     log "  Commit: $current_commit"
@@ -251,7 +264,8 @@ build_antora() {
 
     # Display build information
     if [ -d "$STATIC_SITE_DIR" ]; then
-        local file_count=$(find "$STATIC_SITE_DIR" -type f | wc -l)
+        local file_count
+        file_count=$(find "$STATIC_SITE_DIR" -type f | wc -l)
         log "Antora build info:"
         log "  Output directory: $STATIC_SITE_DIR"
         log "  Files generated: $file_count"
@@ -293,7 +307,8 @@ start_python_app() {
 # Start a specific TTYD terminal
 start_ttyd_terminal() {
     local terminal_num=$1
-    local enabled=$(get_terminal_config $terminal_num "ENABLE")
+    local enabled
+    enabled=$(get_terminal_config "$terminal_num" "ENABLE")
 
     if [ "$enabled" != "true" ]; then
         log "Terminal $terminal_num: not enabled, skipping"
@@ -301,22 +316,31 @@ start_ttyd_terminal() {
     fi
 
     # Validate SSH configuration
-    validate_terminal_ssh_config $terminal_num || {
+    validate_terminal_ssh_config "$terminal_num" || {
         error "Terminal $terminal_num: SSH configuration validation failed";
         return 1;
     }
 
     log "Starting TTYD Terminal $terminal_num..."
 
-    local port=$(get_terminal_config $terminal_num "PORT")
-    local command=$(get_terminal_config $terminal_num "COMMAND")
-    local ssh_host=$(get_terminal_config $terminal_num "SSH_HOST")
-    local ssh_port=$(get_terminal_config $terminal_num "SSH_PORT")
-    local ssh_user=$(get_terminal_config $terminal_num "SSH_USER")
-    local ssh_pass=$(get_terminal_config $terminal_num "SSH_PASS")
-    local ssh_method=$(get_terminal_config $terminal_num "SSH_METHOD")
-    local ssh_key_file=$(get_terminal_config $terminal_num "SSH_PRIVATE_KEY_FILE")
-    local terminal_command=$(get_terminal_config $terminal_num "TERMINAL_COMMAND")
+    local port
+    local command
+    local ssh_host
+    local ssh_port
+    local ssh_user
+    local ssh_pass
+    local ssh_method
+    local ssh_key_file
+    local terminal_command
+    port=$(get_terminal_config "$terminal_num" "PORT")
+    command=$(get_terminal_config "$terminal_num" "COMMAND")
+    ssh_host=$(get_terminal_config "$terminal_num" "SSH_HOST")
+    ssh_port=$(get_terminal_config "$terminal_num" "SSH_PORT")
+    ssh_user=$(get_terminal_config "$terminal_num" "SSH_USER")
+    ssh_pass=$(get_terminal_config "$terminal_num" "SSH_PASS")
+    ssh_method=$(get_terminal_config "$terminal_num" "SSH_METHOD")
+    ssh_key_file=$(get_terminal_config "$terminal_num" "SSH_PRIVATE_KEY_FILE")
+    terminal_command=$(get_terminal_config "$terminal_num" "TERMINAL_COMMAND")
 
     # Set default port if not specified
     if [ -z "$port" ]; then
@@ -360,7 +384,8 @@ start_ttyd_terminal() {
 
     # Start TTYD with the determined command
     log "Terminal $terminal_num: Starting TTYD on port $port with command: $command_to_run"
-    (exec ttyd --base-path=/ -W -p $port -O -t fontSize=14 -t "theme=${TTYD_THEME}" $command_to_run 2>&1 | sed -u "s/^/[ttyd$terminal_num]\t/" ) &
+    # shellcheck disable=SC2086
+    (exec ttyd --base-path=/ -W -p "$port" -O -t fontSize=14 -t "theme=${TTYD_THEME}" $command_to_run 2>&1 | sed -u "s/^/[ttyd$terminal_num]\t/" ) &
 
     local pid=$!
     echo $pid > "$PID_DIR/ttyd$terminal_num.pid"
@@ -372,8 +397,9 @@ start_ttyd_terminal() {
 # Discover enabled terminals by checking environment variables
 get_enabled_terminals() {
     local terminals=""
-    for i in $(seq 1 $TERMINAL_MAX_COUNT); do  # Check up to TERMINAL_MAX_COUNT terminals
-        local enabled=$(get_terminal_config $i "ENABLE")
+    for i in $(seq 1 "$TERMINAL_MAX_COUNT"); do  # Check up to TERMINAL_MAX_COUNT terminals
+        local enabled
+        enabled=$(get_terminal_config "$i" "ENABLE")
         if [ "$enabled" = "true" ]; then
             terminals="$terminals $i"
         fi
@@ -383,19 +409,21 @@ get_enabled_terminals() {
 
 # Start all TTYD terminals
 start_ttyd_terminals() {
-    local enabled_terminals=$(get_enabled_terminals)
+    local enabled_terminals
+    enabled_terminals=$(get_enabled_terminals)
 
     if [ -z "$enabled_terminals" ]; then
         log "No terminals enabled, skipping TTYD startup"
         return 0
     fi
 
-    local terminal_count=$(echo $enabled_terminals | wc -w)
+    local terminal_count
+    terminal_count=$(echo "$enabled_terminals" | wc -w)
     log "Starting $terminal_count TTYD terminals: $enabled_terminals"
 
     local failed_count=0
     for i in $enabled_terminals; do
-        if ! start_ttyd_terminal $i; then
+        if ! start_ttyd_terminal "$i"; then
             warn "Failed to start terminal $i"
             failed_count=$((failed_count + 1))
         fi
@@ -414,7 +442,8 @@ start_ttyd_terminals() {
 # Generate Caddy configuration for terminals
 generate_caddy_terminal_config() {
     local config_file="/app/caddy/includes/entrypoint/00_terminals.caddy"
-    local enabled_terminals=$(get_enabled_terminals)
+    local enabled_terminals
+    enabled_terminals=$(get_enabled_terminals)
 
     log "Generating Caddy configuration for terminals..."
 
@@ -430,7 +459,8 @@ EOF
 
     # Generate routes for each enabled terminal
     for i in $enabled_terminals; do
-        local port=$(get_terminal_config $i "PORT")
+        local port
+        port=$(get_terminal_config "$i" "PORT")
         if [ -z "$port" ]; then
             port=$((7680 + i))
         fi
@@ -470,7 +500,8 @@ wait_for_services() {
 
     local max_attempts=30
     local attempt=0
-    local enabled_terminals=$(get_enabled_terminals)
+    local enabled_terminals
+    enabled_terminals=$(get_enabled_terminals)
 
     while [ $attempt -lt $max_attempts ]; do
         local all_ready=true
@@ -482,11 +513,12 @@ wait_for_services() {
 
         # Check if terminals are ready
         for i in $enabled_terminals; do
-            local port=$(get_terminal_config $i "PORT")
+            local port
+            port=$(get_terminal_config "$i" "PORT")
             if [ -z "$port" ]; then
                 port=$((7680 + i))
             fi
-            if ! curl -f -s http://localhost:$port > /dev/null 2>&1; then
+            if ! curl -f -s http://localhost:"$port" > /dev/null 2>&1; then
                 all_ready=false
             fi
         done
@@ -515,8 +547,10 @@ main() {
     log "Starting multi-service container..."
     log "Container running as user: $(id)"
 
-    local enabled_terminals=$(get_enabled_terminals)
-    local terminal_count=$(echo $enabled_terminals | wc -w)
+    local enabled_terminals
+    local terminal_count
+    enabled_terminals=$(get_enabled_terminals)
+    terminal_count=$(echo "$enabled_terminals" | wc -w)
     log "Terminal configuration: $terminal_count terminals enabled ($enabled_terminals)"
 
     # Create a directory for PID files

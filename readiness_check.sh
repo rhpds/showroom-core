@@ -23,8 +23,9 @@ get_terminal_config() {
 # Discover enabled terminals by checking environment variables
 get_enabled_terminals() {
     local terminals=""
-    for i in $(seq 1 $TERMINAL_MAX_COUNT); do
-        local enabled=$(get_terminal_config $i "ENABLE")
+    for i in $(seq 1 "$TERMINAL_MAX_COUNT"); do
+        enabled=$(get_terminal_config "$i" "ENABLE")
+        local enabled
         if [ "$enabled" = "true" ]; then
             terminals="$terminals $i"
         fi
@@ -34,7 +35,8 @@ get_enabled_terminals() {
 
 # Check all enabled TTYD terminal endpoints
 check_ttyd_terminals() {
-    local enabled_terminals=$(get_enabled_terminals)
+    local enabled_terminals
+    enabled_terminals=$(get_enabled_terminals)
 
     if [ -z "$enabled_terminals" ]; then
         echo "No terminals enabled, skipping TTYD endpoint checks."
@@ -42,14 +44,15 @@ check_ttyd_terminals() {
     fi
 
     local failed_count=0
-    local total_count=$(echo $enabled_terminals | wc -w)
+    local total_count
+    total_count=$(echo "$enabled_terminals" | wc -w)
 
     for i in $enabled_terminals; do
         # We expect a redirect for /ttydN/, so a 3xx response is success here.
         # TODO use --head here, there appears to be a bug in ttyd HEAD calls,
         # where it returns a body and golangs http.Client logs an error;
         # "Unsolicited response received on idle HTTP channel starting with \"
-        if ! curl --fail --silent http://localhost:8000/ttyd$i/ > /dev/null; then
+        if ! curl --fail --silent http://localhost:8000/ttyd"$i"/ > /dev/null; then
             echo "Readiness check failed: TTYD Terminal $i endpoint '/ttyd$i/' is not responding." >&2
             failed_count=$((failed_count + 1))
         else
