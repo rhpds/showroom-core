@@ -31,7 +31,7 @@ podman run --rm \
 -p 8000:8000 \
 -e LAYOUT_CONFIG_NAME=content \
 -e GIT_REPO_URL=https://github.com/rhpds/showroom_template_default.git \
-quay.io/andrew-jones/showroom-core:v0.0.16
+quay.io/andrew-jones/showroom-core:v0.0.19
 ```
 
 #### Connect to an ssh server
@@ -50,7 +50,7 @@ podman run --rm \
 -e TERMINAL_1_SSH_METHOD=password \
 -e TERMINAL_1_SSH_USER={{USERNAME}} \
 -e TERMINAL_1_SSH_PASS={{PASSWORD}} \
-quay.io/andrew-jones/showroom-core:v0.0.16
+quay.io/andrew-jones/showroom-core:v0.0.19
 ```
 
 ### Using Podman Compose

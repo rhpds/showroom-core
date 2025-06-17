@@ -1,6 +1,6 @@
 {{- define "infrastructure.core.container" }}
 - name: core
-  image: quay.io/andrew-jones/showroom-core:v0.0.18
+  image: quay.io/andrew-jones/showroom-core:v0.0.19
   imagePullPolicy: IfNotPresent
   resources:
     limits:
