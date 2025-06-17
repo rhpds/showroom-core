@@ -1,0 +1,67 @@
+---
+deployment:
+  target: podman # or openshift
+  guid: xxxxx
+  hostname: showroom-example.com:8443
+  scheme: https
+  appName: showroom
+  # Set the cluster external https port here if it's different to the
+  # internal container port for http -> https redirection with Traefik
+  clusterHTTPSPort: 8443
+  # Openshift options
+  namespace: showroom
+  serviceAccountName: showroom-service-account
+
+#############################################################
+# Service container configuration
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    repoRef: main
+    antoraPlaybook: default-site.yml
+    data: null
+
+  terminal:
+    enable: false
+    host: host.docker.internal
+    port: 22
+    user: lab-user
+    pass: ""
+    command: ""
+    sshMethod: publickey # or password
+    sshPrivateKeyFile: files/ssh/id
+
+  terminal2:
+    enable: false
+    host: host.docker.internal
+    port: 22
+    user: lab-user
+    pass: ""
+    command: ""
+    sshMethod: publickey # or password
+    sshPrivateKeyFile: files/ssh/id
+
+  terminal3:
+    enable: false
+    host: host.docker.internal
+    port: 22
+    user: lab-user
+    pass: ""
+    command: ""
+    sshMethod: publickey # or password
+    sshPrivateKeyFile: files/ssh/id
+
+  # ssh server to test against, can enable both password and/or key auth.
+  openssh:
+    enable: false
+    user: lab-user
+    pass: "" # Provide a password to enable password auth
+    sshKeyDir: files/ssh # Provide a sshKeyDir to enable key auth
+
+  helloworld:
+    enable: false
+
+#############################################################
+# Layout configuration
+layout: null
+layout_name: ""
