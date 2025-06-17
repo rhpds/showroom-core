@@ -46,7 +46,7 @@ services:
       - TERMINAL_3_PORT=7683
 
       # Layout configuration
-      - LAYOUT_CONFIG_NAME=1-hosts-3-terminals
+      - LAYOUT_CONFIG_NAME=3-hosts-3-terminals
       # - LAYOUT_CONFIG_PATH=/app/layouts/content-tabs-3-terminals.yaml
     volumes:
       - ./caddy:/app/caddy:z
@@ -54,6 +54,16 @@ services:
       - ./layouts:/app/layouts:z
       - ./entrypoint.sh:/app/entrypoint.sh:z
       - .config/ssh/id:/opt/id:z
+      - ./health_check.sh:/app/health_check.sh:z
+      - ./readiness_check.sh:/app/readiness_check.sh:z
+    healthcheck:
+      test: ["CMD", "/app/health_check.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Note: Docker Compose doesn't have native readiness probe support like Kubernetes
+    # The readiness_check.sh script is available for manual testing or Kubernetes deployments
 
   host1:
     image: docker.io/linuxserver/openssh-server:latest
