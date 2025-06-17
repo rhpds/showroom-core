@@ -1,7 +1,7 @@
 ---
 deployment:
-  target: podman
-  hostname: showroom-example.com:8443
+  target: openshift
+  hostname: showroom.apps.cluster-{{GUID}}.{{GUID}}.{{SANDBOX}}.opentlc.com
 
 #############################################################
 # Indiviual service configuration
@@ -12,14 +12,10 @@ services:
       lab_name: All new dynamic showroom layouts!!!!
 
   terminal:
-    host: localhost
-    port: 2222
+    enable: true
+    host: bastion.{{GUID}}.{{SANDBOX}}.opentlc.com
     user: lab-user
-    sshMethod: publickey
-    sshKeyDir: files/ssh
+    pass: {{PASSWORD}}
+    sshMethod: password
 
-  # openssh is enabled here for the example, giving wetty an ssh server to connect to
-  openssh:
-    enabled: true
-    user: lab-user
-    sshKeyDir: files/ssh
+layout_name: 1-host-1-terminal

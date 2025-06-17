@@ -1,10 +1,24 @@
 ---
 deployment:
   target: podman
-  hostname: showroom-example.com:8443
+  scheme: http
+  hostname: localhost:8000
 
 services:
   content:
     repoUrl: https://github.com/rhpds/showroom_template_default.git
     data:
       lab_name: All new dynamic showroom layouts!
+
+# Set the layout by name
+# See, https://github.com/rhpds/showroom-core/tree/main/layouts for layouts
+# where the filename pattern is '{layout_name}.yaml'
+layout_name: content
+
+# Or use the helm service->url replacement
+# layout:
+#   service: content
+
+# Or reference the path directly.
+# layout:
+#   url: /content/

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{.Values.deployment.appName}}-{{.Values.deployment.guid}}"
+  {{- if eq .Values.deployment.target "openshift" }}
+  namespace: {{.Values.deployment.namespace}}
+  {{- end }}
+  labels:
+    app: {{.Values.deployment.appName}}
+    version: {{.Chart.AppVersion}}
+    guid: {{.Values.deployment.guid}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.deployment.appName}}
+      version: {{.Chart.AppVersion}}
+      guid: {{.Values.deployment.guid}}
+  template:
+    metadata:
+      # https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments
+      annotations:
+        checksum/caddy: {{ include "infrastructure.caddy.configmap.merged" . | sha256sum }}
+        {{- if .layout }}
+        checksum/layout: {{ include "infrastructure.layout.configmap"
+          (dict "deployment" $.Values.deployment "layout" $.Values.layout) | sha256sum }}
+      {{- end }}
+      labels:
+        app: {{.Values.deployment.appName}}
+        version: {{.Chart.AppVersion}}
+        guid: {{.Values.deployment.guid}}
+    spec:
+      {{- if eq .Values.deployment.target "openshift" }}
+      serviceAccountName: {{.Values.deployment.serviceAccountName}}
+      {{- end }}
+      containers:
+      # Infrastructure service containers
+      {{- include "infrastructure.core.container"
+          (dict "target" $.Values.deployment.target "content" .Values.services.content "services" .Values.services "layout_name" .Values.layout_name) | indent 6 }}
+      # Other services
+        {{- include "services.helloworld.container" (dict "helloworld" .Values.services.helloworld) | indent 6 -}}
+        {{- if eq $.Values.deployment.target "podman" }}
+          {{- include "services.openssh.container" (dict "openssh" .Values.services.openssh "Files" $.Files) | indent 6 }}
+        {{- end }}
+      volumes:
+      {{- include "infrastructure.core.volume" (dict "services" .Values.services "layout_name" .Values.layout_name) | indent 6 }}
+      # Volumes for services
+      {{- if eq $.Values.deployment.target "podman" }}
+        {{- include "services.openssh.volume" (dict "openssh" .Values.services.openssh) | indent 6 -}}
+      {{- end }}
+

@@ -1,0 +1,11 @@
+{{- include "infrastructure.layout.configmap"
+    (dict "deployment" $.Values.deployment "layout" $.Values.layout) }}
+
+{{- include "infrastructure.ttyd.configmap" (dict "deployment" $.Values.deployment "ttyd" .Values.services.terminal "Files" $.Files) }}
+
+{{- if eq $.Values.deployment.target "podman" }}
+  {{- include "services.openssh.configmap" (dict "deployment" $.Values.deployment "openssh" .Values.services.openssh) -}}
+{{- end }}
+
+# Print out the merged routing config for traefik
+{{- include "infrastructure.caddy.configmap.merged" . }}

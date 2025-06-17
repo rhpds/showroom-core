@@ -1,0 +1,80 @@
+{{- define "services.openssh.container" }}
+{{- if eq .openssh.enable true }}
+- name: openssh
+  image: docker.io/linuxserver/openssh-server:version-9.7_p1-r4
+  imagePullPolicy: IfNotPresent
+  env:
+  - name: USER_NAME
+    value: "{{ .openssh.user }}"
+{{- if not (eq .openssh.pass "") }}
+  - name: PASSWORD_ACCESS
+    value: "true"
+  - name: USER_PASSWORD
+    value: "{{ .openssh.pass }}"
+{{- else }}
+  - name: PASSWORD_ACCESS
+    value: "false"
+{{- end }}
+{{- if not (eq .openssh.sshKeyDir "") }}
+  - name: PUBLIC_KEY
+    value: {{ .Files.Get "files/ssh/id.pub" }}
+{{- end }}
+  - name: "PUID"
+    value: "1000"
+  - name: "PGID"
+    value: "1000"
+  resources:
+    limits:
+      memory: 64Mi
+    requests:
+      memory: 32Mi
+  ports:
+  - containerPort: 2222
+    protocol: TCP
+  volumeMounts:
+  - name: workspace
+    mountPath: /config/workspace
+  - name: motd
+    mountPath: /etc/motd
+    subPath: motd
+{{- end }}
+{{- end }}
+
+{{- define "services.openssh.volume" }}
+{{ if eq .openssh.enable true -}}
+- name: workspace
+  emptyDir: {}
+- name: motd
+  configMap:
+    name: openssh-motd
+{{- end }}
+{{- end }}
+
+{{- define "services.openssh.configmap" }}
+{{ if eq .openssh.enable true -}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: openssh-motd
+  {{- if eq .deployment.target "openshift" }}
+  namespace: {{ .deployment.namespace }}
+  {{- end }}
+data:
+  motd: |
+    .                                 __
+                                  _.-~  )
+                        _..--~~~~,'   ,-/     _
+                    .-'. . . .'   ,-','    ,' )
+                  ,'. . . _   ,--~,-'__..-'  ,'
+                ,'. . .  (@)' ---~~~~      ,'
+                /. . . . '~~             ,-'
+              /. . . . .             ,-'
+              ; . . . .  - .        ,'
+            : . . . .       _     /
+            . . . . .          `-.:
+          . . . ./  - .          )
+          .  . . |  _____..---.._/
+    ~---~~~~----~~~~             ~~
+{{- end }}
+{{- end }}

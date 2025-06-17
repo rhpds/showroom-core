@@ -2,12 +2,12 @@
 #
 # This file imports configurations from other files.
 
-# Unless the file starts with a global options block, the first
-# uncommented line is always the address of your site.
 :8000 {
-	# Import the core configuration from includes directory
-	import includes/*.caddy
-	# Users should mount configs to include in includes.d
+	# Import the core configuration
+	import includes/core/*.caddy
+	# Import any configuration created by the entrypoint script
+	import includes/entrypoint/*.caddy
+	# Import any configuration created or mounted by the user
 	import includes.d/*.caddy
 }
 

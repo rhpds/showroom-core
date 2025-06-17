@@ -1,0 +1,16 @@
+{{- if eq .Values.deployment.target "openshift" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  namespace: {{.Values.deployment.namespace}}
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  selector:
+    app: showroom
+{{- end }}

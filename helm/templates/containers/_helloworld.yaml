@@ -1,0 +1,45 @@
+{{- define "services.helloworld.container" }}
+{{ if eq .helloworld.enable true -}}
+- name: helloworld
+  image: docker.io/testcontainers/helloworld:1.2.0
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      memory: 64Mi
+    requests:
+      memory: 40Mi
+  ports:
+  - containerPort: 8080
+{{- end }}
+{{- end }}
+
+{{- define "services.helloworld.route" }}
+{{ if eq .helloworld.enable true -}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: caddy-helloworld
+  {{- if eq .deployment.target "openshift" }}
+  namespace: {{ .deployment.namespace }}
+  {{- end }}
+  labels:
+    app: showroom
+    role: caddy-config
+data:
+  99_helloworld.caddy: |
+    # 99_helloworld.caddy
+    # Configuration for the helloworld endpoints
+    handle_path /helloworld/* {
+      reverse_proxy localhost:8080
+    }
+    handle_path /ping {
+      rewrite * /ping
+      reverse_proxy localhost:8080
+    }
+    handle_path /uuid {
+      rewrite * /uuid
+      reverse_proxy localhost:8080
+    }
+{{- end }}
+{{- end }}

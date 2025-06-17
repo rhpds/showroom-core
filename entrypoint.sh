@@ -413,7 +413,7 @@ start_ttyd_terminals() {
 
 # Generate Caddy configuration for terminals
 generate_caddy_terminal_config() {
-    local config_file="/app/caddy/includes.d/99_terminals.caddy"
+    local config_file="/app/caddy/includes/entrypoint/00_terminals.caddy"
     local enabled_terminals=$(get_enabled_terminals)
 
     log "Generating Caddy configuration for terminals..."

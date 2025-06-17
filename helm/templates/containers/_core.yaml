@@ -1,0 +1,216 @@
+{{- define "infrastructure.core.container" }}
+- name: core
+  image: quay.io/andrew-jones/showroom-core:v0.0.18
+  imagePullPolicy: IfNotPresent
+  resources:
+    limits:
+      memory: 128Mi
+    requests:
+      memory: 64Mi
+  ports:
+  - containerPort: 8000
+    protocol: TCP
+  env:
+  - name: GIT_REPO_URL
+    value: {{.content.repoUrl}}
+  - name: GIT_REPO_REF
+    value: {{.content.repoRef}}
+  - name: ANTORA_PLAYBOOK
+    value: {{.content.antoraPlaybook}}
+{{- if not .layout_name }}
+  - name: LAYOUT_CONFIG_PATH
+    value: /app/layout/config.yaml
+{{- end }}
+{{- if eq .services.terminal.enable true }}
+  - name: TERMINAL_1_ENABLE
+    value: "{{.services.terminal.enable}}"
+  - name: TERMINAL_1_SSH_HOST
+    value: "{{.services.terminal.host}}"
+  - name: TERMINAL_1_SSH_PORT
+    value: "{{.services.terminal.port}}"
+  - name: TERMINAL_1_SSH_USER
+    value: "{{.services.terminal.user}}"
+  - name: TERMINAL_1_SSH_PASS
+    value: "{{.services.terminal.pass}}"
+  - name: TERMINAL_1_SSH_METHOD
+    value: "{{.services.terminal.sshMethod}}"
+  - name: TERMINAL_1_SSH_PRIVATE_KEY_FILE
+    value: "/app/.ssh/id"
+{{- end }}
+{{- if eq .services.terminal2.enable true }}
+  - name: TERMINAL_2_ENABLE
+    value: "{{.services.terminal.enable}}"
+  - name: TERMINAL_2_SSH_HOST
+    value: "{{.services.terminal.host}}"
+  - name: TERMINAL_2_SSH_PORT
+    value: "{{.services.terminal.port}}"
+  - name: TERMINAL_2_SSH_USER
+    value: "{{.services.terminal.user}}"
+  - name: TERMINAL_2_SSH_PASS
+    value: "{{.services.terminal.pass}}"
+  - name: TERMINAL_2_SSH_METHOD
+    value: "{{.services.terminal.sshMethod}}"
+  - name: TERMINAL_2_SSH_PRIVATE_KEY_FILE
+    value: "/app/.ssh/id"
+{{- end }}
+{{- if eq .services.terminal3.enable true }}
+  - name: TERMINAL_3_ENABLE
+    value: "{{.services.terminal.enable}}"
+  - name: TERMINAL_3_SSH_HOST
+    value: "{{.services.terminal.host}}"
+  - name: TERMINAL_3_SSH_PORT
+    value: "{{.services.terminal.port}}"
+  - name: TERMINAL_3_SSH_USER
+    value: "{{.services.terminal.user}}"
+  - name: TERMINAL_3_SSH_PASS
+    value: "{{.services.terminal.pass}}"
+  - name: TERMINAL_3_SSH_METHOD
+    value: "{{.services.terminal.sshMethod}}"
+  - name: TERMINAL_3_SSH_PRIVATE_KEY_FILE
+    value: "/app/.ssh/id"
+{{- end }}
+{{- if .layout_name }}
+  - name: LAYOUT_CONFIG_NAME
+    value: "{{ .layout_name }}"
+{{- end }}
+  volumeMounts:
+  - name: repository
+    mountPath: /app/repository
+  - name: content
+    mountPath: /app/caddy/static
+  - name: caddy-entrypoint-config
+    mountPath: /app/caddy/includes/entrypoint
+  - name: caddy-user-config
+    mountPath: /app/caddy/includes.d
+  - name: caddy
+    mountPath: /app/.local
+  - name: caddy
+    mountPath: /app/.config
+{{- if not .layout_name }}
+  - name: layout
+    mountPath: "/app/layout/config.yaml"
+    subPath: "config.yaml"
+{{- end }}
+{{- if or (eq .services.terminal.enable true) (eq .services.terminal2.enable true) (eq .services.terminal3.enable true) }}
+  - name: ttyd
+    mountPath: /app/.ssh
+# TODO only if publickey method is set
+  - name: ttyd-ssh-key
+    mountPath: /app/.ssh/id
+    subPath: id
+{{- end }}
+  livenessProbe:
+    exec:
+      command:
+        - /app/health_check.sh
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    exec:
+      command:
+        - /app/readiness_check.sh
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 2
+    successThreshold: 1
+{{- end }}
+
+{{- define "infrastructure.core.volume" }}
+- name: repository
+  emptyDir: {}
+- name: content
+  emptyDir: {}
+- name: caddy-entrypoint-config
+  emptyDir: {}
+- name: caddy-user-config
+  configMap:
+    name: caddy-config
+- name: caddy
+  emptyDir: {}
+{{- if not .layout_name }}
+- name: layout
+  configMap:
+    name: layout
+{{- end }}
+{{- if or (eq .services.terminal.enable true) (eq .services.terminal2.enable true) (eq .services.terminal3.enable true) }}
+- name: ttyd
+  emptyDir: {}
+- name: ttyd-ssh-key
+  secret:
+    secretName: ttyd-ssh-key
+    defaultMode: 0600
+{{- end }}
+{{- end }}
+
+{{- define "infrastructure.caddy.configmap" }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: caddy-config
+  {{- if eq .deployment.target "openshift" }}
+  namespace: {{ .deployment.namespace }}
+  {{- end }}
+  labels:
+    app: showroom
+    role: caddy-config
+data:
+{{- end }}
+
+{{- define "infrastructure.caddy.configmap.merged" }}
+# Base config is the traefik config + dashboard route if enabled
+{{- $config := include "infrastructure.caddy.configmap" (dict "deployment" $.Values.deployment) | fromYaml -}}
+
+# Merge service routing configurations as we loop services
+{{- $config := mustMerge $config (include "services.helloworld.route" (dict "deployment" $.Values.deployment "helloworld" .Values.services.helloworld)| fromYaml) -}}
+
+# Print out the merged routing config for traefik
+---
+{{- toYaml $config }}
+{{- end }}
+
+{{- define "infrastructure.ttyd.configmap" }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ttyd-ssh-key
+  {{- if eq .deployment.target "openshift" }}
+  namespace: {{ .deployment.namespace }}
+  {{- end }}
+type: Opaque
+data:
+{{ (.Files.Glob .ttyd.sshPrivateKeyFile).AsSecrets | indent 2 }}
+{{- end }}
+
+{{- define "infrastructure.layout.configmap" }}
+{{- if .layout }}
+{{- /*
+  Must do the replace for "service: terminal2" before "service: terminal"
+*/}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: layout
+  {{- if eq .deployment.target "openshift" }}
+  namespace: {{ .deployment.namespace }}
+  {{- end }}
+data:
+  config.yaml: |
+    layout:
+{{ toYaml .layout
+  | replace "service: content" "url: {{ .endpoint }}/content/"
+  | replace "service: helloworld" "url: {{ .endpoint }}/helloworld/"
+  | replace "service: terminal3" "url: {{ .endpoint }}/ttyd3/"
+  | replace "service: terminal2" "url: {{ .endpoint }}/ttyd2/"
+  | replace "service: terminal" "url: {{ .endpoint }}/ttyd1/"
+  | replace "{{ .endpoint }}" (printf "%s://%s" .deployment.scheme .deployment.hostname)
+  |indent 6
+}}
+{{- end }}
+{{- end }}

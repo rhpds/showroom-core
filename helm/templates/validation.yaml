@@ -1,0 +1,2 @@
+{{/* This template only runs validation and produces no output */}}
+{{- include "validate.all" . }}

@@ -1,0 +1,18 @@
+{{- if eq .Values.deployment.target "openshift" }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: traefik-https
+  namespace: {{.Values.deployment.namespace}}
+spec:
+  host: {{.Values.deployment.hostname}}
+  port:
+    targetPort: 8000
+  to:
+    kind: Service
+    name: traefik
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

@@ -1,7 +1,8 @@
 ---
 deployment:
   target: podman
-  hostname: showroom-example.com:8443
+  scheme: http
+  hostname: localhost:8000
 
 #############################################################
 # Indiviual service configuration
@@ -12,6 +13,7 @@ services:
       lab_name: All new dynamic showroom layouts!!!!
 
   terminal:
+    enable: true
     host: localhost
     port: 2222
     user: lab-user
@@ -19,6 +21,8 @@ services:
 
   # openssh is enabled here for the example, giving wetty an ssh server to connect to
   openssh:
-    enabled: true
+    enable: true
     user: lab-user
     sshKeyDir: files/ssh
+
+layout_name: 1-host-1-terminal

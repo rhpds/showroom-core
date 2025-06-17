@@ -1,168 +1,139 @@
 # Examples
 
-This directory contains complete deployment examples that demonstrate how to use profiles with target-specific overrides. Each example follows the pattern:
+This directory contains complete deployment examples that demonstrate different Showroom configurations. Each example provides a ready-to-use configuration for specific use cases and can be customized with additional values files.
+
+## Usage Pattern
 
 ```bash
-helm template ./helm -f ./profiles/PROFILE.yaml -f ./examples/EXAMPLE/TARGET.yaml | DEPLOY_COMMAND
+# For Podman
+helm template ./helm -f ./examples/EXAMPLE/podman.yaml [additional-values.yaml] | podman play kube --replace --publish-all -
+
+# For OpenShift
+helm template ./helm -f ./examples/EXAMPLE/openshift.yaml [additional-values.yaml] | oc apply -f -
 ```
 
 Where:
-- **PROFILE.yaml** - Base configuration from [profiles/](../profiles/)
-- **TARGET.yaml** - Platform-specific overrides (podman.yaml or openshift.yaml)
-- **DEPLOY_COMMAND** - `podman play kube` or `oc apply -f -`
+- **EXAMPLE** - One of the available examples (content-only, content-terminal, content-2-terminals, all-services)
+- **TARGET.yaml** - Platform-specific configuration (podman.yaml or openshift.yaml)
+- **additional-values.yaml** - Your custom overrides (optional)
 
-## Content Only
+## Available Examples
+
+### Content Only
 
 Single page layout displaying only documentation content.
 
 * **Example Directory**: [content-only/](content-only/)
-* **Profile**: [../profiles/content-only.yaml](../profiles/content-only.yaml)
-* **Use Case**: Documentation-only deployments, getting started guides
+* **Layout**: `content`
+* **Use Case**: Documentation-only deployments, getting started guides, simple content presentation
 
-### Podman
+#### Podman
 
-```
-helm template ./helm -f ./profiles/content-only.yaml -f ./examples/content-only/podman.yaml | podman play kube --replace --publish-all -
-```
-
-```
-~ curl -I -k https://showroom-example.com:8443/showroom
-
-HTTP/2 200
-content-type: text/html; charset=utf-8
-date: Fri, 06 Jun 2025 04:21:41 GMT
-server: waitress
-content-length: 3529
+```bash
+helm template ./helm -f ./examples/content-only/podman.yaml | podman play kube --replace --publish-all -
 ```
 
-### Openshift
+Access at: `http://localhost:8000/showroom`
 
-Replace `{{GUID}}` and `{{SANDBOX}}` with your openshift cluster values.
+#### OpenShift
 
-```
-sed -i 's/{{GUID}}/6grh2/g' ./examples/content-only/openshift.yaml
-sed -i 's/{{SANDBOX}}/sandbox1425/g' ./examples/content-only/openshift.yaml
-```
+Replace `{{GUID}}` and `{{SANDBOX}}` with your OpenShift cluster values:
 
-Apply the chart to your openshift cluster
-```
-helm template ./helm -f ./profiles/content-only.yaml -f ./examples/content-only/openshift.yaml | oc apply -f -
-```
-Check showroom returns a 200
+```bash
+sed -i 's/{{GUID}}/your-guid/g' ./examples/content-only/openshift.yaml
+sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/content-only/openshift.yaml
 
-```
-~ curl -I -k https://showroom.apps.cluster-6grh2.6grh2.sandbox1425.opentlc.com/showroom
-
-HTTP/2 200
-content-type: text/html; charset=utf-8
-date: Fri, 06 Jun 2025 04:29:52 GMT
-server: waitress
-content-length: 3561
+helm template ./helm -f ./examples/content-only/openshift.yaml | oc apply -f -
 ```
 
-## Split Content and Terminal
+### Content with Terminal
 
 Two-column layout with documentation content on the left and terminal access on the right.
 
-### Single Terminal
-
-* **Example Directory**: [split-content-terminal/](split-content-terminal/)
-* **Profile**: [../profiles/split-content-terminal.yaml](../profiles/split-content-terminal.yaml)
+* **Example Directory**: [content-terminal/](content-terminal/)
+* **Layout**: `1-host-1-terminal`
 * **Use Case**: Hands-on labs requiring terminal access alongside documentation
 
 #### Podman
 
-The profile connects to an SSH server. For local testing, the example includes an OpenSSH server container.
+The example includes an OpenSSH server container for testing terminal connectivity.
 
 ```bash
-helm template ./helm -f ./profiles/split-content-terminal.yaml -f ./examples/split-content-terminal/podman.yaml | podman play kube --replace --publish-all -
+helm template ./helm -f ./examples/content-terminal/podman.yaml | podman play kube --replace --publish-all -
 ```
 
-### Two Stacked Terminals
-
-* **Example Directory**: [split-content-2-terminals/](split-content-2-terminals/)
-* **Profile**: [../profiles/split-content-2-terminals.yaml](../profiles/split-content-2-terminals.yaml)
-* **Use Case**: Advanced labs requiring multiple terminal sessions
-
-#### Podman
-
-```bash
-helm template ./helm -f ./profiles/split-content-2-terminals.yaml -f ./examples/split-content-2-terminals/podman.yaml | podman play kube --replace --publish-all -
-```
+Access at: `http://localhost:8000/showroom`
 
 #### OpenShift
 
 Replace placeholders with your OpenShift cluster values. The terminal will connect to the bastion host with user `lab-user` and the specified password.
 
-**Single Terminal:**
+```bash
+# Replace placeholders
+sed -i 's/{{GUID}}/your-guid/g' ./examples/content-terminal/openshift.yaml
+sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/content-terminal/openshift.yaml
+sed -i 's/{{PASSWORD}}/your-password/g' ./examples/content-terminal/openshift.yaml
+
+# Deploy
+helm template ./helm -f ./examples/content-terminal/openshift.yaml | oc apply -f -
+```
+
+### Content with Two Terminals
+
+Two-column layout with documentation content on the left and two stacked terminals on the right.
+
+* **Example Directory**: [content-2-terminals/](content-2-terminals/)
+* **Layout**: `1-host-2-terminals`
+* **Use Case**: Advanced labs requiring multiple terminal sessions
+
+#### Podman
+
+The example includes an OpenSSH server container for testing terminal connectivity.
+
+```bash
+helm template ./helm -f ./examples/content-2-terminals/podman.yaml | podman play kube --replace --publish-all -
+```
+
+Access at: `http://localhost:8000/showroom`
+
+#### OpenShift
+
+Replace placeholders with your OpenShift cluster values. Both terminals will connect to the bastion host.
 
 ```bash
 # Replace placeholders
-sed -i 's/{{GUID}}/your-guid/g' ./examples/split-content-terminal/openshift.yaml
-sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/split-content-terminal/openshift.yaml
-sed -i 's/{{PASSWORD}}/your-password/g' ./examples/split-content-terminal/openshift.yaml
+sed -i 's/{{GUID}}/your-guid/g' ./examples/content-2-terminals/openshift.yaml
+sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/content-2-terminals/openshift.yaml
+sed -i 's/{{PASSWORD}}/your-password/g' ./examples/content-2-terminals/openshift.yaml
 
 # Deploy
-helm template ./helm -f ./profiles/split-content-terminal.yaml -f ./examples/split-content-terminal/openshift.yaml | oc apply -f -
+helm template ./helm -f ./examples/content-2-terminals/openshift.yaml | oc apply -f -
 ```
 
-**Two Stacked Terminals:**
-
-```bash
-# Replace placeholders
-sed -i 's/{{GUID}}/your-guid/g' ./examples/split-content-2-terminals/openshift.yaml
-sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/split-content-2-terminals/openshift.yaml
-sed -i 's/{{PASSWORD}}/your-password/g' ./examples/split-content-2-terminals/openshift.yaml
-
-# Deploy
-helm template ./helm -f ./profiles/split-content-2-terminals.yaml -f ./examples/split-content-2-terminals/openshift.yaml | oc apply -f -
-```
-
-## Split Content and TTYD
-
-Two-column layout with documentation content on the left and TTYD terminal on the right.
-
-* **Example Directory**: [split-content-ttyd/](split-content-ttyd/)
-* **Profile**: [../profiles/split-content-ttyd.yaml](../profiles/split-content-ttyd.yaml)
-* **Use Case**: Labs requiring terminal access with TTYD's enhanced features
-
-### Podman
-
-The profile connects to an SSH server on the local machine. For testing, the example includes an OpenSSH server container.
-
-```bash
-helm template ./helm -f ./profiles/split-content-ttyd.yaml -f ./examples/split-content-ttyd/podman.yaml | podman play kube --replace --publish-all -
-```
-
-### OpenShift
-
-Replace placeholders with your OpenShift cluster values. TTYD will connect to the bastion host with user `lab-user` and the specified password.
-
-```bash
-# Replace placeholders
-sed -i 's/{{GUID}}/your-guid/g' ./examples/split-content-ttyd/openshift.yaml
-sed -i 's/{{SANDBOX}}/your-sandbox/g' ./examples/split-content-ttyd/openshift.yaml
-sed -i 's/{{PASSWORD}}/your-password/g' ./examples/split-content-ttyd/openshift.yaml
-
-# Deploy
-helm template ./helm -f ./profiles/split-content-ttyd.yaml -f ./examples/split-content-ttyd/openshift.yaml | oc apply -f -
-```
-
-## All Services
+### All Services
 
 Complex layout demonstrating all available services with columns, tabs, and stacks.
 
 * **Example Directory**: [all-services/](all-services/)
-* **Profile**: None (uses complete custom configuration)
-* **Use Case**: Demonstration of full showroom capabilities, advanced lab environments
+* **Layout**: Custom layout configuration
+* **Use Case**: Demonstration of full Showroom capabilities, advanced lab environments
 
-### Podman
+This example showcases:
+- Content service with documentation
+- Hello world service
+- Multiple terminal services (terminal, terminal2, terminal3)
+- OpenSSH server for testing
+- Complex layout with tabs and stacked components
+
+#### Podman
 
 ```bash
 helm template ./helm -f ./examples/all-services/podman.yaml | podman play kube --replace --publish-all -
 ```
 
-### OpenShift
+Access at: `http://localhost:8000/showroom`
+
+#### OpenShift
 
 Replace placeholders with your OpenShift cluster values. Multiple services will connect to the bastion host.
 
@@ -176,10 +147,133 @@ sed -i 's/{{PASSWORD}}/your-password/g' ./examples/all-services/openshift.yaml
 helm template ./helm -f ./examples/all-services/openshift.yaml | oc apply -f -
 ```
 
+## Example Configuration Details
+
+### Content Only Example
+
+```yaml
+deployment:
+  target: podman
+  scheme: http
+  hostname: localhost:8000
+
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    data:
+      lab_name: All new dynamic showroom layouts!
+
+layout_name: content
+```
+
+### Content Terminal Example
+
+```yaml
+deployment:
+  target: podman
+  scheme: http
+  hostname: localhost:8000
+
+services:
+  content:
+    repoUrl: https://github.com/rhpds/showroom_template_default.git
+    data:
+      lab_name: All new dynamic showroom layouts!!!!
+
+  terminal:
+    enable: true
+    host: localhost
+    port: 2222
+    user: lab-user
+    sshMethod: publickey
+
+  openssh:
+    enable: true
+    user: lab-user
+    sshKeyDir: files/ssh
+
+layout_name: 1-host-1-terminal
+```
+
+### All Services Example
+
+The all-services example demonstrates a complex custom layout:
+
+```yaml
+layout:
+  columns:
+    left:
+      service: content
+      width: 40
+    right:
+      width: 60
+      tabs:
+      - name: Terminals
+        stack:
+          top:
+            service: terminal
+            height: 30
+          middle:
+            service: terminal2
+            height: 30
+          bottom:
+            service: terminal3
+            height: 40
+      - name: Documentation
+        url: https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/about/welcome-index
+      - name: Stack
+        stack:
+          top:
+            service: helloworld
+            height: 40
+          bottom:
+            url: https://en.wikipedia.org/wiki/Red_Hat
+            height: 60
+```
+
+## Customization
+
+### Adding Custom Values
+
+You can override any configuration by providing additional values files:
+
+```bash
+# Create custom values
+cat > my-custom.yaml << EOF
+services:
+  content:
+    data:
+      lab_name: My Custom Lab Name
+      custom_var: Custom Value
+EOF
+
+# Deploy with custom values
+helm template ./helm -f ./examples/content-only/podman.yaml -f my-custom.yaml | podman play kube --replace --publish-all -
+```
+
+### Available Layout Names
+
+Instead of custom layout configuration, you can use predefined layout names:
+
+- `content` - Single page content only
+- `1-host-1-terminal` - Content with one terminal
+- `1-host-1-terminal-no-tabs` - Content with one terminal (no tabs)
+- `1-host-2-terminals` - Content with two terminals
+- `1-host-2-terminals-no-tabs` - Content with two terminals (no tabs)
+- `1-host-3-terminals` - Content with three terminals
+- `1-host-3-terminals-no-tabs` - Content with three terminals (no tabs)
+- `2-hosts-2-terminals` - Content with two terminals for different hosts
+- `2-hosts-2-terminals-no-tabs` - Content with two terminals for different hosts (no tabs)
+- `3-hosts-3-terminals` - Content with three terminals for different hosts
+- `3-hosts-3-terminals-no-tabs` - Content with three terminals for different hosts (no tabs)
+
 ## Getting Started
 
-For new users, we recommend starting with the **Content Only** example to understand the basic deployment process, then progressing to **Split Content and Terminal** for hands-on labs.
+For new users, we recommend starting with the **Content Only** example to understand the basic deployment process, then progressing to **Content Terminal** for hands-on labs.
 
-For detailed information about profiles and customization options, see:
-- [Profiles Documentation](../profiles/README.md)
-- [Helm Chart Documentation](../helm/README.md)
+1. **Start Simple**: Begin with `content-only` to verify basic functionality
+2. **Add Interactivity**: Move to `content-terminal` for labs requiring terminal access
+3. **Scale Up**: Use `content-2-terminals` for more complex scenarios
+4. **Explore Features**: Try `all-services` to see all capabilities
+
+For detailed configuration options and troubleshooting, see the [main Helm chart documentation](../README.md).

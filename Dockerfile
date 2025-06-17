@@ -42,7 +42,12 @@ RUN wget -q https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/tt
 ###################################################
 # Caddy
 COPY ./caddy/Caddyfile /app/caddy/Caddyfile
-COPY ./caddy/includes /app/caddy/includes
+COPY ./caddy/includes/core /app/caddy/includes/core
+# Make directory for entrypoint script to write caddy configs
+RUN mkdir -p /app/caddy/includes/entrypoint
+# Make directory for extra configs, entrypoint.sh will create configs here
+# and users can mount files to include
+RUN mkdir -p /app/caddy/includes.d
 
 RUN mkdir -p /app/caddy/static
 COPY ./caddy/static/index.html /app/caddy/static/index.html
