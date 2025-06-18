@@ -9,6 +9,6 @@ entries:
     name: showroom
     type: application
     urls:
-    - https://rhpds.github.io/showroom-core/helm/showroom-2.0.0.tgz
+    - https://github.com/rhpds/showroom-core/releases/download/v0.0.20/showroom-2.0.0.tgz
     version: 2.0.0
 generated: "2025-06-18T15:09:42.655500203+10:00"
