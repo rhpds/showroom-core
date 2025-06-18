@@ -46,10 +46,8 @@ check_process() {
 get_terminal_config() {
     local terminal_num=$1
     local config_name=$2
-
-    # Use eval to get the value of the dynamically named variable
     local var_name="TERMINAL_${terminal_num}_${config_name}"
-    eval echo "\$$var_name"
+    echo "${!var_name}"
 }
 
 # Discover enabled terminals by checking environment variables

@@ -107,10 +107,10 @@ trap cleanup SIGTERM SIGINT SIGQUIT
 get_terminal_config() {
     local terminal_num=$1
     local config_name=$2
-
-    # Use eval to get the value of the dynamically named variable
     local var_name="TERMINAL_${terminal_num}_${config_name}"
-    eval echo "\$$var_name"
+    # Use indirect expansion to safely get the value of the variable
+    # The '!' prefix tells bash to treat the value of var_name as the name of another variable
+    echo "${!var_name}"
 }
 
 # Validate SSH configuration for a specific terminal

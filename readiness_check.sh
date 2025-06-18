@@ -14,18 +14,16 @@ TERMINAL_MAX_COUNT="${TERMINAL_MAX_COUNT:-5}"
 get_terminal_config() {
     local terminal_num=$1
     local config_name=$2
-
-    # Use eval to get the value of the dynamically named variable
     local var_name="TERMINAL_${terminal_num}_${config_name}"
-    eval echo "\$$var_name"
+    echo "${!var_name}"
 }
 
 # Discover enabled terminals by checking environment variables
 get_enabled_terminals() {
     local terminals=""
     for i in $(seq 1 "$TERMINAL_MAX_COUNT"); do
-        enabled=$(get_terminal_config "$i" "ENABLE")
         local enabled
+        enabled=$(get_terminal_config "$i" "ENABLE")
         if [ "$enabled" = "true" ]; then
             terminals="$terminals $i"
         fi
