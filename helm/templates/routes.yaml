@@ -3,7 +3,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: traefik-https
+  name: showroom
   namespace: {{.Values.deployment.namespace}}
 spec:
   host: {{.Values.deployment.hostname}}
@@ -11,7 +11,7 @@ spec:
     targetPort: 8000
   to:
     kind: Service
-    name: traefik
+    name: showroom
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect

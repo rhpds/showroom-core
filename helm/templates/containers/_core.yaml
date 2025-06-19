@@ -162,13 +162,11 @@ data:
 {{- end }}
 
 {{- define "infrastructure.caddy.configmap.merged" }}
-# Base config is the traefik config + dashboard route if enabled
+# Base config is the caddys base config
 {{- $config := include "infrastructure.caddy.configmap" (dict "deployment" $.Values.deployment) | fromYaml -}}
-
-# Merge service routing configurations as we loop services
+# Merge service routes if they are enabled
 {{- $config := mustMerge $config (include "services.helloworld.route" (dict "deployment" $.Values.deployment "helloworld" .Values.services.helloworld)| fromYaml) -}}
-
-# Print out the merged routing config for traefik
+# Print out the merged routing config for caddy
 ---
 {{- toYaml $config }}
 {{- end }}
