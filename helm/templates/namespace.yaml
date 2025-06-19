@@ -1,4 +1,4 @@
-{{- if eq .Values.deployment.target "openshift" }}
+{{- if and (eq .Values.deployment.target "openshift") (eq .Values.deployment.createNamespace true) }}
 apiVersion: v1
 kind: Namespace
 metadata:
