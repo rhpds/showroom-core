@@ -2,13 +2,23 @@ apiVersion: v1
 entries:
   showroom:
   - apiVersion: v2
-    appVersion: 0.0.20
-    created: "2025-06-18T15:09:42.656028309+10:00"
+    appVersion: 1.0.0
+    created: "2025-06-19T19:45:30.201129133+10:00"
     description: Deploys the Showroom web app and supporting services
-    digest: 91cf2100b0bac6be8077ddc53c334458ea0b0488708041b85af54aa48674e6a5
+    digest: a44a60f05276c337d05804d7431a2a3c53b8e12c0f4451bbca4a008079ed12f8
     name: showroom
     type: application
     urls:
-    - https://github.com/rhpds/showroom-core/releases/download/v0.0.20/showroom-2.0.0.tgz
+    - https://rhpds.github.io/showroom-core/helm/showroom-2.0.1.tgz
+    version: 2.0.1
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-06-19T19:45:30.200536137+10:00"
+    description: Deploys the Showroom web app and supporting services
+    digest: 1e816f3a38ac15fb412866e56575052a03d9c34eb80899c367a9ca417b4b09b7
+    name: showroom
+    type: application
+    urls:
+    - https://rhpds.github.io/showroom-core/helm/showroom-2.0.0.tgz
     version: 2.0.0
-generated: "2025-06-18T15:09:42.655500203+10:00"
+generated: "2025-06-19T19:45:30.199819079+10:00"
