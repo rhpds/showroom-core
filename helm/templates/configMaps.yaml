@@ -7,5 +7,5 @@
   {{- include "services.openssh.configmap" (dict "deployment" $.Values.deployment "openssh" .Values.services.openssh) -}}
 {{- end }}
 
-# Print out the merged routing config for traefik
+# Print out the merged routing config for caddy
 {{- include "infrastructure.caddy.configmap.merged" . }}

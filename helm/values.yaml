@@ -5,9 +5,6 @@ deployment:
   hostname: showroom-example.com:8443
   scheme: https
   appName: showroom
-  # Set the cluster external https port here if it's different to the
-  # internal container port for http -> https redirection with Traefik
-  clusterHTTPSPort: 8443
   # Openshift options
   namespace: showroom
   serviceAccountName: showroom-service-account
