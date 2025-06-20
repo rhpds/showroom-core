@@ -3,7 +3,17 @@ entries:
   showroom:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-06-19T19:45:30.201129133+10:00"
+    created: "2025-06-20T10:56:13.123232075+10:00"
+    description: Deploys the Showroom web app and supporting services
+    digest: 45c006b9cb078017a1b05c8f6f999f4fbe27916b808b1be5089ea6f1b37a6b34
+    name: showroom
+    type: application
+    urls:
+    - https://github.com/rhpds/showroom-core/releases/download/v0.0.22/showroom-2.0.2.tgz
+    version: 2.0.2
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-06-20T10:56:13.122527059+10:00"
     description: Deploys the Showroom web app and supporting services
     digest: a44a60f05276c337d05804d7431a2a3c53b8e12c0f4451bbca4a008079ed12f8
     name: showroom
@@ -13,7 +23,7 @@ entries:
     version: 2.0.1
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-06-19T19:45:30.200536137+10:00"
+    created: "2025-06-20T10:56:13.12189508+10:00"
     description: Deploys the Showroom web app and supporting services
     digest: 1e816f3a38ac15fb412866e56575052a03d9c34eb80899c367a9ca417b4b09b7
     name: showroom
@@ -21,4 +31,4 @@ entries:
     urls:
     - https://github.com/rhpds/showroom-core/releases/download/v0.0.20/showroom-2.0.0.tgz
     version: 2.0.0
-generated: "2025-06-19T19:45:30.199819079+10:00"
+generated: "2025-06-20T10:56:13.12119312+10:00"
