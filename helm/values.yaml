@@ -25,9 +25,12 @@ services:
     port: 22
     user: lab-user
     pass: ""
-    command: ""
     sshMethod: publickey # or password
     sshPrivateKeyFile: files/ssh/id
+    # override the ssh command, runs inside the container
+    command: ""
+    # override the command run after sshing, usually some shell
+    terminal_command: ""
 
   terminal2:
     enable: false
@@ -38,6 +41,8 @@ services:
     command: ""
     sshMethod: publickey # or password
     sshPrivateKeyFile: files/ssh/id
+    command: ""
+    terminal_command: ""
 
   terminal3:
     enable: false
@@ -48,6 +53,8 @@ services:
     command: ""
     sshMethod: publickey # or password
     sshPrivateKeyFile: files/ssh/id
+    command: ""
+    terminal_command: ""
 
   # ssh server to test against, can enable both password and/or key auth.
   openssh:
