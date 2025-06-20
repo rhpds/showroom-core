@@ -17,10 +17,7 @@ services:
 
   terminal:
     enable: true
-    host: bastion.{{GUID}}.{{SANDBOX}}.opentlc.com
-    user: lab-user
-    pass: {{PASSWORD}}
-    sshMethod: password
+    command: top
 
   terminal2:
     enable: true
@@ -28,6 +25,7 @@ services:
     user: lab-user
     pass: {{PASSWORD}}
     sshMethod: password
+    terminal_command: top
 
   terminal3:
     enable: true

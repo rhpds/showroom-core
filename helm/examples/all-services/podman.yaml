@@ -18,10 +18,7 @@ services:
 
   terminal:
     enable: true
-    host: localhost
-    port: 2222
-    user: lab-user
-    sshMethod: publickey
+    command: top
 
   terminal2:
     enable: true
@@ -30,6 +27,7 @@ services:
     user: lab-user
     sshMethod: password
     pass: Password1
+    terminal_command: top
 
   terminal3:
     enable: true

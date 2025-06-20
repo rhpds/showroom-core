@@ -36,38 +36,50 @@
     value: "{{.services.terminal.sshMethod}}"
   - name: TERMINAL_1_SSH_PRIVATE_KEY_FILE
     value: "/app/.ssh/id"
+  - name: TERMINAL_1_COMMAND
+    value: "{{.services.terminal.command}}"
+  - name: TERMINAL_1_TERMINAL_COMMAND
+    value: "{{.services.terminal.terminal_command}}"
 {{- end }}
 {{- if eq .services.terminal2.enable true }}
   - name: TERMINAL_2_ENABLE
-    value: "{{.services.terminal.enable}}"
+    value: "{{.services.terminal2.enable}}"
   - name: TERMINAL_2_SSH_HOST
-    value: "{{.services.terminal.host}}"
+    value: "{{.services.terminal2.host}}"
   - name: TERMINAL_2_SSH_PORT
-    value: "{{.services.terminal.port}}"
+    value: "{{.services.terminal2.port}}"
   - name: TERMINAL_2_SSH_USER
-    value: "{{.services.terminal.user}}"
+    value: "{{.services.terminal2.user}}"
   - name: TERMINAL_2_SSH_PASS
-    value: "{{.services.terminal.pass}}"
+    value: "{{.services.terminal2.pass}}"
   - name: TERMINAL_2_SSH_METHOD
-    value: "{{.services.terminal.sshMethod}}"
+    value: "{{.services.terminal2.sshMethod}}"
   - name: TERMINAL_2_SSH_PRIVATE_KEY_FILE
     value: "/app/.ssh/id"
+  - name: TERMINAL_2_COMMAND
+    value: "{{.services.terminal2.command}}"
+  - name: TERMINAL_2_TERMINAL_COMMAND
+    value: "{{.services.terminal2.terminal_command}}"
 {{- end }}
 {{- if eq .services.terminal3.enable true }}
   - name: TERMINAL_3_ENABLE
-    value: "{{.services.terminal.enable}}"
+    value: "{{.services.terminal3.enable}}"
   - name: TERMINAL_3_SSH_HOST
-    value: "{{.services.terminal.host}}"
+    value: "{{.services.terminal3.host}}"
   - name: TERMINAL_3_SSH_PORT
-    value: "{{.services.terminal.port}}"
+    value: "{{.services.terminal3.port}}"
   - name: TERMINAL_3_SSH_USER
-    value: "{{.services.terminal.user}}"
+    value: "{{.services.terminal3.user}}"
   - name: TERMINAL_3_SSH_PASS
-    value: "{{.services.terminal.pass}}"
+    value: "{{.services.terminal3.pass}}"
   - name: TERMINAL_3_SSH_METHOD
-    value: "{{.services.terminal.sshMethod}}"
+    value: "{{.services.terminal3.sshMethod}}"
   - name: TERMINAL_3_SSH_PRIVATE_KEY_FILE
     value: "/app/.ssh/id"
+  - name: TERMINAL_3_COMMAND
+    value: "{{.services.terminal3.command}}"
+  - name: TERMINAL_3_TERMINAL_COMMAND
+    value: "{{.services.terminal3.terminal_command}}"
 {{- end }}
 {{- if .layout_name }}
   - name: LAYOUT_CONFIG_NAME
