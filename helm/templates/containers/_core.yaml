@@ -202,12 +202,11 @@ data:
   config.yaml: |
     layout:
 {{ toYaml .layout
-  | replace "service: content" "url: {{ .endpoint }}/content/"
-  | replace "service: helloworld" "url: {{ .endpoint }}/helloworld/"
-  | replace "service: terminal3" "url: {{ .endpoint }}/ttyd3/"
-  | replace "service: terminal2" "url: {{ .endpoint }}/ttyd2/"
-  | replace "service: terminal" "url: {{ .endpoint }}/ttyd1/"
-  | replace "{{ .endpoint }}" (printf "%s://%s" .deployment.scheme .deployment.hostname)
+  | replace "service: content" "url: /content/"
+  | replace "service: helloworld" "url: /helloworld/"
+  | replace "service: terminal3" "url: /ttyd3/"
+  | replace "service: terminal2" "url: /ttyd2/"
+  | replace "service: terminal" "url: /ttyd1/"
   |indent 6
 }}
 {{- end }}

@@ -6,7 +6,6 @@ metadata:
   name: showroom
   namespace: {{.Values.deployment.namespace}}
 spec:
-  host: {{.Values.deployment.hostname}}
   port:
     targetPort: 8000
   to:
